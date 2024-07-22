@@ -254,7 +254,7 @@ sudo su -
 cd /root/chatbot-ui-for-miibo
 ```
 ```
- supabase init --force
+supabase init --force
 ```
 ```
 supabase start
@@ -284,8 +284,6 @@ vi .env.local
 
 
 - `NEXT_PUBLIC_SUPABASE_URL`：上記6-3の`API URL`のIP部分を自身のIPに置き換えて設定
-※nginxでのURLプロキシ連携していない場合は必須。  
-※URLプロキシ連携している場合は、空欄```NEXT_PUBLIC_SUPABASE_URL=```のままで良い。
 ```例
 # Supabase Public
 NEXT_PUBLIC_SUPABASE_URL=http://XXX.XXX.XXX.XXX:54321`
@@ -315,7 +313,7 @@ NEXT_PUBLIC_SUPABASE_URL=http://XXX.XXX.XXX.XXX:54321`
     cd /$(whoami)/chatbot-ui-for-miibo
 
     # Start the chatbot
-    npm run chat:start &
+    npm run chat &
 
     EOF"
     ```
@@ -341,7 +339,7 @@ NEXT_PUBLIC_SUPABASE_URL=http://XXX.XXX.XXX.XXX:54321`
 
  - 最終行に以下をコピーする
     ```
-    @reboot sleep 20 && sh /root/start-chatbot.sh
+    @reboot sleep 20 && sh /root/start-chatbot.sh > /root/start-chatbot.log 2>&1
     ```
 
 ### 10. Nginxの導入・設定
@@ -350,11 +348,11 @@ NEXT_PUBLIC_SUPABASE_URL=http://XXX.XXX.XXX.XXX:54321`
     sudo apt install nginx
     ```
 2. Nginxの設定
-
  - proxy_pathを利用して3000ポートを80ポートにリダイレクト。
     ```
     sudo nano /etc/nginx/sites-available/default
     ```
+   - 変更前
     ```変更前
         server_name _;
 
@@ -366,14 +364,14 @@ NEXT_PUBLIC_SUPABASE_URL=http://XXX.XXX.XXX.XXX:54321`
 
         # pass PHP scripts to FastCGI server
     ```
-        ↓
+   - 変更後
     ```変更後
         server_name _;
 
         location / {
                 # First attempt to serve request as file, then
                 # as directory, then fall back to displaying a 404.
-                try_files $uri $uri/ =404;
+                # try_files $uri $uri/ =404;
 
                 proxy_pass http://127.0.0.1:3000/;
                 proxy_http_version 1.1;
@@ -396,11 +394,12 @@ NEXT_PUBLIC_SUPABASE_URL=http://XXX.XXX.XXX.XXX:54321`
     ```
     sudo nano /etc/nginx/nginx.conf
     ```
-    ```
+   - 変更前
+    ```変更前
     user www-data;
     ```
-        ↓
-    ```
+   - 変更後
+    ```変更後
     user root;
     ```
  
