@@ -152,7 +152,7 @@ npm install
 sudo apt install build-essential procps file
 ```
 
-2. Homebrewをインストールする。  
+2. Homebrewをインストールする。
  - root権限からユーザに戻る。
 ```
 [ "$(whoami)" = "root" ] && cd / && exit
@@ -283,7 +283,7 @@ vi .env.local
 ```
 
 
-- `NEXT_PUBLIC_SUPABASE_URL`：上記6-3の`API URL`のIP部分を自身のIPに置き換えて設定  
+- `NEXT_PUBLIC_SUPABASE_URL`：上記6-3の`API URL`のIP部分を自身のIPに置き換えて設定
 ※nginxでのURLプロキシ連携していない場合は必須。  
 ※URLプロキシ連携している場合は、空欄```NEXT_PUBLIC_SUPABASE_URL=```のままで良い。
 ```例
@@ -298,7 +298,7 @@ NEXT_PUBLIC_SUPABASE_URL=http://XXX.XXX.XXX.XXX:54321`
 ### 9. シェルスクリプトによる自動起動準備
 **サーバー内でcronを利用した設定になります。**
 
-1. start-chatbot.sh の生成  
+1. start-chatbot.sh の生成
  - ヒアドキュメント形式で必要な設定を書き込む
 
     ```
@@ -315,7 +315,9 @@ NEXT_PUBLIC_SUPABASE_URL=http://XXX.XXX.XXX.XXX:54321`
     cd /$(whoami)/chatbot-ui-for-miibo
 
     # Start the chatbot
-    npm run chat:start &"    
+    npm run chat:start &
+
+    EOF"
     ```
 
  - 「```\```」を消す
@@ -353,17 +355,25 @@ NEXT_PUBLIC_SUPABASE_URL=http://XXX.XXX.XXX.XXX:54321`
     ```
     sudo nano /etc/nginx/sites-available/default
     ```
-    ```
+    ```変更前
+        server_name _;
+
         location / {
                 # First attempt to serve request as file, then
                 # as directory, then fall back to displaying a 404.
                 try_files $uri $uri/ =404;
         }
+
+        # pass PHP scripts to FastCGI server
+    ```
         ↓
+    ```変更後
+        server_name _;
+
         location / {
                 # First attempt to serve request as file, then
                 # as directory, then fall back to displaying a 404.
-                # try_files $uri $uri/ =404;
+                try_files $uri $uri/ =404;
 
                 proxy_pass http://127.0.0.1:3000/;
                 proxy_http_version 1.1;
@@ -378,6 +388,8 @@ NEXT_PUBLIC_SUPABASE_URL=http://XXX.XXX.XXX.XXX:54321`
             alias /root/chatbot-ui-for-miibo/.next/static;
             add_header Cache-Control "public, max-age=3600, immutable";
         }
+
+        # pass PHP scripts to FastCGI server
     ```
 
  - nginxユーザーをrootに設定
@@ -385,9 +397,11 @@ NEXT_PUBLIC_SUPABASE_URL=http://XXX.XXX.XXX.XXX:54321`
     sudo nano /etc/nginx/nginx.conf
     ```
     ```
-    user www-data
-    ↓
-    user root
+    user www-data;
+    ```
+        ↓
+    ```
+    user root;
     ```
  
  - 正しく書き込まれたことの確認
